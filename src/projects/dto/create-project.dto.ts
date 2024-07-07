@@ -9,12 +9,12 @@ export class UserId {
 }
 
 export class SandOneProjectDto extends UserId {
-    @IsOptional()
+    @IsNotEmpty()
     @IsString()
     readonly id: string
 }
 
-export class ProjectDto extends SandOneProjectDto {
+export class ProjectDto extends UserId {
     @IsNotEmpty()
     @IsString()
     @Length(4, 150, { message: PROJECT_RULE_LENGTH })
@@ -23,4 +23,10 @@ export class ProjectDto extends SandOneProjectDto {
     @IsOptional()
     @IsString()
     readonly description?: string
+}
+
+export class UpdateProjectDto extends ProjectDto {
+    @IsNotEmpty()
+    @IsString()
+    readonly id: string
 }

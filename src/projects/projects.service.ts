@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ProjectDto } from './dto/create-project.dto';
+import { ProjectDto, SandOneProjectDto, UpdateProjectDto } from './dto/create-project.dto';
 import { PrismaService } from 'src/prisma.service';
-import { SandOneProjectDto } from 'src/types/project.types';
 
 @Injectable()
 export class ProjectsService {
@@ -18,96 +17,109 @@ export class ProjectsService {
         select: { id: true, name: true, description: true, createdAt: true }
       });
     } catch (error) {
-      throw new HttpException(`Произошла ошибка создания проекта! ${error}`, HttpStatus.BAD_REQUEST)
+      throw new HttpException(`Произошла ошибка во время создания проекта! ${error}`, HttpStatus.FORBIDDEN)
     }
   }
 
   async findAll(userId: string) {
-    const project = await this.prisma.project.findMany({
-      where: { userId: userId },
-      select: {
-        id: true, name: true, description: true, createdAt: true,
-        taskFields: {
-          select: {
-            id: true, name: true, field: true,
-            taskFieldsEnumValue: { select: { id: true, name: true } },
-          }
-        },
-        statuses: {
-          select: {
-            id: true, name: true,
-            tasks: {
-              select: { id: true, createdAt: true, name: true, description: true },
-              orderBy: { order: 'asc' }
+    try {
+      return await this.prisma.project.findMany({
+        where: { userId: userId },
+        select: {
+          id: true, name: true, description: true, createdAt: true,
+          taskFields: {
+            select: {
+              id: true, name: true, field: true,
+              taskFieldsEnumValue: { select: { id: true, name: true } },
             }
           },
-          orderBy: { order: 'asc' }
-        },
-      }
-
-    });
-    if (!project) throw new HttpException(`Произошла ошибка получения проектов!`, HttpStatus.NOT_FOUND)
-    return project
+          statuses: {
+            select: {
+              id: true, name: true,
+              tasks: {
+                select: { id: true, createdAt: true, name: true, description: true },
+                orderBy: { order: 'asc' }
+              }
+            },
+            orderBy: { order: 'asc' }
+          },
+        }
+      });
+    } catch (error) {
+      throw new HttpException(`Произошла ошибка при получении проектов! ${error}`, HttpStatus.FORBIDDEN)
+    }
   }
 
   async findOne(dto: SandOneProjectDto) {
-    const { userId, id } = dto
-    const project = await this.prisma.project.findUnique({
-      where: { userId, id }, select: {
-        id: true, name: true, description: true, createdAt: true,
-        taskFields: {
-          select: {
-            id: true, name: true, field: true,
-          }
-        },
-        statuses: {
-          select: {
-            id: true, name: true,
-            tasks: {
-              select: { id: true, createdAt: true, name: true, description: true },
-              orderBy: { order: 'asc' }
+    try {
+      const { userId, id } = dto
+      const project = await this.findOneProject(userId, id)
+      if (!project) throw new HttpException(`Такой проект не существует!`, HttpStatus.BAD_REQUEST)
+      return await this.prisma.project.findUnique({
+        where: { userId, id }, select: {
+          id: true, name: true, description: true, createdAt: true,
+          taskFields: {
+            select: {
+              id: true, name: true, field: true,
             }
           },
-          orderBy: { order: 'asc' }
-        },
-      }
-    })
-    if (!project) throw new HttpException(`Произошла ошибка получения проекта!`, HttpStatus.NOT_FOUND)
-    return project
+          statuses: {
+            select: {
+              id: true, name: true,
+              tasks: {
+                select: { id: true, createdAt: true, name: true, description: true },
+                orderBy: { order: 'asc' }
+              }
+            },
+            orderBy: { order: 'asc' }
+          },
+        }
+      })
+    } catch (error) {
+      throw new HttpException(`Произошла ошибка при получении проекта! ${error}`, HttpStatus.FORBIDDEN)
+    }
   }
 
-  async update(dto: ProjectDto) {
-    const { userId, id, name, description } = dto
-    const project = await this.findOneProject(userId, id)
-    if (!project) throw new HttpException(`Произошла ошибка получения проекта!`, HttpStatus.NOT_FOUND)
-    return await this.prisma.project.update({
-      where: { id, userId }, data: { name, description, userId }, select: {
-        id: true, name: true, description: true, createdAt: true,
-        statuses: {
-          select: {
-            id: true, name: true, order: true,
-            tasks: {
-              select: { id: true, createdAt: true, name: true, description: true, order: true }
+  async update(dto: UpdateProjectDto) {
+    try {
+      const { userId, id, name, description } = dto
+      const project = await this.findOneProject(userId, id)
+      if (!project) throw new HttpException(`Такой проект не существует!`, HttpStatus.BAD_REQUEST)
+      return await this.prisma.project.update({
+        where: { id, userId }, data: { name, description, userId }, select: {
+          id: true, name: true, description: true, createdAt: true,
+          statuses: {
+            select: {
+              id: true, name: true, order: true,
+              tasks: {
+                select: { id: true, createdAt: true, name: true, description: true, order: true }
+              }
+            }
+          },
+          taskFields: {
+            select: {
+              id: true, name: true, field: true,
+              taskFieldsEnumValue: { select: { id: true, name: true } },
+              taskIntValues: { select: { value: true, taskFieldId: true, taskId: true } },
+              taskStrValues: { select: { value: true, taskFieldId: true, taskId: true } }
             }
           }
-        },
-        taskFields: {
-          select: {
-            id: true, name: true, field: true,
-            taskFieldsEnumValue: { select: { id: true, name: true } },
-            taskIntValues: { select: { value: true, taskFieldId: true, taskId: true } },
-            taskStrValues: { select: { value: true, taskFieldId: true, taskId: true } }
-          }
         }
-      }
-    })
+      })
+    } catch (error) {
+      throw new HttpException(`Что-то пошло не так при попытке обновления проекта!`, HttpStatus.FORBIDDEN);
+    }
   }
 
   async remove(dto: SandOneProjectDto): Promise<{ message: string }> {
-    const { userId, id } = dto
-    const project = await this.findOneProject(userId, id)
-    if (!project) throw new HttpException(`Произошла ошибка получения проекта!`, HttpStatus.NOT_FOUND)
-    await this.prisma.project.delete({ where: { id, userId } });
-    return { message: 'Проект успешно удален!' };
+    try {
+      const { userId, id } = dto
+      const project = await this.findOneProject(userId, id)
+      if (!project) throw new HttpException(`Такой проект не существует!`, HttpStatus.BAD_REQUEST)
+      await this.prisma.project.delete({ where: { id, userId } });
+      return { message: 'Проект успешно удален!' };
+    } catch (error) {
+      throw new HttpException(`Что-то пошло не так при попытке удаления проекта!`, HttpStatus.FORBIDDEN);
+    }
   }
 }

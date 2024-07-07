@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { TaskDto, UpdateOrderDto } from './dto/task.dto';
+import { IdTaskDto, StatusIdDto, TaskDto, UpdateOrderDto, UpdateTaskDto } from './dto/task.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('tasks')
 export class TasksController {
@@ -8,42 +9,42 @@ export class TasksController {
 
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
-  @Post()
-  create(@Body() dto: TaskDto) {
+  @MessagePattern({ cmd: "create-task" })
+  create(@Payload() dto: TaskDto) {
     return this.tasksService.create(dto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get(':status_id')
-  findAll(@Param('status_id') statusId: string) {
-    return this.tasksService.findAll(statusId);
+  @MessagePattern({ cmd: "get-all-tasks" })
+  findAll(@Payload() dto: StatusIdDto) {
+    return this.tasksService.findAll(dto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get(':status_id/:id')
-  findOne(@Param('status_id') statusId: string, @Param('id') id: string) {
-    return this.tasksService.findOne(statusId, id);
+  @MessagePattern({ cmd: "get-one-task" })
+  findOne(@Payload() dto: IdTaskDto) {
+    return this.tasksService.findOne(dto);
   }
 
 
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
-  @Patch(`order`)
-  updateOrderStatuses(@Body() dto: UpdateOrderDto) {
+  @MessagePattern({ cmd: "update-order-tasks" })
+  updateOrderStatuses(@Payload() dto: UpdateOrderDto) {
     return this.tasksService.updateOrderTasks(dto);
   }
 
 
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: TaskDto) {
-    return this.tasksService.update(id, dto);
+  @MessagePattern({ cmd: "update-task" })
+  update(@Payload() dto: UpdateTaskDto) {
+    return this.tasksService.update(dto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tasksService.remove(id);
+  @MessagePattern({ cmd: "delete-task" })
+  remove(@Payload() dto: IdTaskDto) {
+    return this.tasksService.remove(dto);
   }
 }

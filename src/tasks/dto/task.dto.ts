@@ -1,8 +1,19 @@
 import { IsArray, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { TASK_RULE_LENGTH } from "src/config/util";
 
+export class UserId {
+    @IsNotEmpty()
+    @IsString()
+    readonly userId: string
+}
 
-export class StatusIdDto {
+export class ProjectId extends UserId {
+    @IsNotEmpty()
+    @IsString()
+    readonly projectId?: string
+}
+
+export class StatusIdDto extends ProjectId {
     @IsNotEmpty()
     @IsString()
     readonly statusId: string
@@ -17,6 +28,18 @@ export class TaskDto extends StatusIdDto {
     @IsOptional()
     @IsString()
     readonly description?: string
+}
+
+export class IdTaskDto extends StatusIdDto {
+    @IsNotEmpty()
+    @IsString()
+    readonly id?: string
+}
+
+export class UpdateTaskDto extends TaskDto {
+    @IsNotEmpty()
+    @IsString()
+    readonly id?: string
 }
 
 export class UpdateOrderDto extends StatusIdDto {
