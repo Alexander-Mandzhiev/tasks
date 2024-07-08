@@ -1,13 +1,12 @@
 import { IsArray, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { TASK_RULE_LENGTH } from "src/config/util";
 
-export class UserId {
+
+export class ProjectId {
     @IsNotEmpty()
     @IsString()
     readonly userId: string
-}
 
-export class ProjectId extends UserId {
     @IsNotEmpty()
     @IsString()
     readonly projectId?: string

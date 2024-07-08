@@ -32,10 +32,7 @@ export class TasksService {
       return await this.prisma.task.create({
         data: { name, description, order: count, statusId },
         select: {
-          id: true, createdAt: true, name: true, description: true, order: true,
-          taskIntValues: { select: { value: true, taskFieldId: true } },
-          taskStrValues: { select: { value: true, taskFieldId: true } },
-          taskEnumValues: { select: { value: true, taskFieldId: true } }
+          id: true, createdAt: true, name: true, description: true, order: true
         }
       });
     } catch (error) {

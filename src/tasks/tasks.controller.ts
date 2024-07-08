@@ -14,12 +14,14 @@ export class TasksController {
     return this.tasksService.create(dto);
   }
 
+  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @MessagePattern({ cmd: "get-all-tasks" })
   findAll(@Payload() dto: StatusIdDto) {
     return this.tasksService.findAll(dto);
   }
 
+  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @MessagePattern({ cmd: "get-one-task" })
   findOne(@Payload() dto: IdTaskDto) {
@@ -42,6 +44,7 @@ export class TasksController {
     return this.tasksService.update(dto);
   }
 
+  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @MessagePattern({ cmd: "delete-task" })
   remove(@Payload() dto: IdTaskDto) {
