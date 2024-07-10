@@ -95,11 +95,6 @@ export class StatusesService {
 
   async updateOrderStatuses(dto: UpdateOrderDto) {
     try {
-      const { userId, projectId } = dto
-
-      const existProject = await this.projectService.findOneProject(userId, projectId)
-      if (!existProject) throw new HttpException(`Произошла ошибка! Такой проект не существует!`, HttpStatus.BAD_REQUEST)
-
       return await this.prisma.$transaction(
         dto.ids.map((id, order) => this.prisma.status.update({
           where: { id },

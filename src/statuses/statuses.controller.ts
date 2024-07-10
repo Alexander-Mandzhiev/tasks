@@ -1,6 +1,6 @@
 import { Controller, UsePipes, HttpCode, HttpStatus, ValidationPipe } from '@nestjs/common';
 import { StatusesService } from './statuses.service';
-import { ProjectId, SandOneStatusDto, StatusDto, UpdateStatusDto } from './dto/status.dto';
+import { ProjectId, SandOneStatusDto, StatusDto, UpdateOrderDto, UpdateStatusDto } from './dto/status.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SandOneProjectDto } from 'src/projects/dto/create-project.dto';
 
@@ -32,7 +32,7 @@ export class StatusesController {
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @MessagePattern({ cmd: "update-status-order-project" })
-  updateOrderStatuses(@Payload() dto: StatusDto) {
+  updateOrderStatuses(@Payload() dto: UpdateOrderDto) {
     return this.statusesService.updateOrderStatuses(dto);
   }
 

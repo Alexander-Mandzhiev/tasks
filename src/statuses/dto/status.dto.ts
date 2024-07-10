@@ -16,7 +16,7 @@ export class ProjectId extends UserId {
 export class SandOneStatusDto extends ProjectId {
     @IsOptional()
     @IsString()
-    readonly id: string
+    readonly id?: string
 }
 
 export class StatusDto extends ProjectId {

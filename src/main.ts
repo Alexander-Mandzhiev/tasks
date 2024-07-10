@@ -8,11 +8,16 @@ async function bootstrap() {
     {
       transport: Transport.RMQ,
       options: {
-        urls: ['amqp://localhost:5672'],
-        queue: 'tasks-queue'
+        urls: ['amqp://rabbitmq:5672'],
+        queue: 'todolist-queue',
+        noAck: true,
+        queueOptions: {
+          durable: true
+        }
       }
     }
   );
+
   app.listen();
 }
 bootstrap();

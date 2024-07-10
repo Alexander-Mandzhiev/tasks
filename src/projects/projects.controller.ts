@@ -24,7 +24,7 @@ export class ProjectsController {
 
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
-  @MessagePattern({ cmd: "get-one-projects" })
+  @MessagePattern({ cmd: "get-one-project" })
   findOne(@Payload() dto: SandOneProjectDto) {
     return this.projectsService.findOne(dto);
   }
